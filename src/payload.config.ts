@@ -26,7 +26,7 @@ export default buildConfig({
   cors: [
     'http://localhost:3000', // frontend dev URL
     'http://localhost:3001', // your Next.js port
-    'https://silibto.vercel.app/', // your deployed frontend URL
+    'https://silibto.vercel.app', // your deployed frontend URL
   ],
 
   editor: lexicalEditor(),
