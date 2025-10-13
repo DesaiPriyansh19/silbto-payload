@@ -29,7 +29,7 @@ export default buildConfig({
     'https://silibto.vercel.app', // live frontend
   ],
   // ✅ Also required for POST requests like login
-  csrf: ['http://localhost:3000', 'http://localhost:3001', 'https://silibto.vercel.app'],
+  // csrf: ['http://localhost:3000', 'http://localhost:3001', 'https://silibto.vercel.app'],
 
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
