@@ -24,10 +24,12 @@ export default buildConfig({
   },
   collections: [Users, Media, Branches, Brands],
   cors: [
-    'http://localhost:3000', // frontend dev URL
-    'http://localhost:3001', // your Next.js port
-    'https://silibto.vercel.app', // your deployed frontend URL
+    'http://localhost:3000', // dev frontend
+    'http://localhost:3001', // dev frontend alternate
+    'https://silibto.vercel.app', // live frontend
   ],
+  // ✅ Also required for POST requests like login
+  csrf: ['http://localhost:3000', 'http://localhost:3001', 'https://silibto.vercel.app'],
 
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -37,7 +39,6 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.MONGODB_URI || '',
   }),
-
   sharp,
   plugins: [
     payloadCloudPlugin(),
