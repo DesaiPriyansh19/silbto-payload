@@ -22,15 +22,16 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media,Branches,Brands],
+  collections: [Users, Media, Branches, Brands],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   db: mongooseAdapter({
-    url: process.env.DATABASE_URI || '',
+    url: process.env.MONGODB_URI || '',
   }),
+
   sharp,
   plugins: [
     payloadCloudPlugin(),
