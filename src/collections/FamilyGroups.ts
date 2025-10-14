@@ -7,7 +7,7 @@ export const FamilyGroups: CollectionConfig = {
     plural: 'Family Groups',
   },
   fields: [
-    { name: 'name', type: 'text', required: true }, // e.g., Group A
-    { name: 'description', type: 'text' }, // optional extra info
+    { name: 'headName', type: 'text', required: true }, // maps to "Name of Head Person"
+    { name: 'reference', type: 'text' }, // maps to "Reference"
   ],
 }

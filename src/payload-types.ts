@@ -218,8 +218,8 @@ export interface Client {
  */
 export interface FamilyGroup {
   id: string;
-  name: string;
-  description?: string | null;
+  headName: string;
+  reference?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -386,8 +386,8 @@ export interface ClientsSelect<T extends boolean = true> {
  * via the `definition` "family-groups_select".
  */
 export interface FamilyGroupsSelect<T extends boolean = true> {
-  name?: T;
-  description?: T;
+  headName?: T;
+  reference?: T;
   updatedAt?: T;
   createdAt?: T;
 }
