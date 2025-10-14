@@ -71,6 +71,8 @@ export interface Config {
     media: Media;
     branches: Branch;
     brands: Brand;
+    clients: Client;
+    'family-groups': FamilyGroup;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -81,6 +83,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     branches: BranchesSelect<false> | BranchesSelect<true>;
     brands: BrandsSelect<false> | BrandsSelect<true>;
+    clients: ClientsSelect<false> | ClientsSelect<true>;
+    'family-groups': FamilyGroupsSelect<false> | FamilyGroupsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -190,6 +194,37 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients".
+ */
+export interface Client {
+  id: string;
+  firstName: string;
+  middleName?: string | null;
+  surname: string;
+  gender: 'Male' | 'Female' | 'Other';
+  phone1: string;
+  phone1Primary?: boolean | null;
+  phone2?: string | null;
+  phone2Primary?: boolean | null;
+  address?: string | null;
+  reference?: string | null;
+  familyGroup?: (string | null) | FamilyGroup;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "family-groups".
+ */
+export interface FamilyGroup {
+  id: string;
+  name: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -210,6 +245,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'brands';
         value: string | Brand;
+      } | null)
+    | ({
+        relationTo: 'clients';
+        value: string | Client;
+      } | null)
+    | ({
+        relationTo: 'family-groups';
+        value: string | FamilyGroup;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -314,6 +357,35 @@ export interface BranchesSelect<T extends boolean = true> {
  * via the `definition` "brands_select".
  */
 export interface BrandsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clients_select".
+ */
+export interface ClientsSelect<T extends boolean = true> {
+  firstName?: T;
+  middleName?: T;
+  surname?: T;
+  gender?: T;
+  phone1?: T;
+  phone1Primary?: T;
+  phone2?: T;
+  phone2Primary?: T;
+  address?: T;
+  reference?: T;
+  familyGroup?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "family-groups_select".
+ */
+export interface FamilyGroupsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   updatedAt?: T;
