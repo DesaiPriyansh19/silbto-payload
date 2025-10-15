@@ -10,13 +10,13 @@ export const Users: CollectionConfig = {
     {
       name: 'brand',
       type: 'relationship',
-      relationTo: 'brands', // must match slug of Brands
+      relationTo: 'brands',
       required: true,
     },
     {
       name: 'branches',
       type: 'relationship',
-      relationTo: 'branches', // must match slug of Branches
+      relationTo: 'branches',
       hasMany: true,
     },
     {
@@ -30,5 +30,26 @@ export const Users: CollectionConfig = {
       defaultValue: 'employee',
       required: true,
     },
+    {
+      name: 'status',
+      type: 'select',
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Inactive', value: 'inactive' },
+      ],
+      defaultValue: 'active',
+      required: true,
+    },
   ],
+
+  // 👇 Hook to prevent inactive users from logging in
+  hooks: {
+    beforeLogin: [
+      async ({ user }) => {
+        if (user.status === 'inactive') {
+          throw new Error('Your account is inactive. Please contact admin.')
+        }
+      },
+    ],
+  },
 }

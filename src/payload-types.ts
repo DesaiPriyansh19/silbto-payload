@@ -132,6 +132,7 @@ export interface User {
   brand: string | Brand;
   branches?: (string | Branch)[] | null;
   role: 'admin' | 'branch-admin' | 'employee';
+  status: 'active' | 'inactive';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -306,6 +307,7 @@ export interface UsersSelect<T extends boolean = true> {
   brand?: T;
   branches?: T;
   role?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
