@@ -47,7 +47,9 @@ export const Users: CollectionConfig = {
     beforeLogin: [
       async ({ user }) => {
         if (user.status === 'inactive') {
-          throw new Error('Your account is inactive. Please contact admin.')
+          const err = new Error('Your account is inactive. Please contact admin.')
+          ;(err as any).status = 401 // ensures frontend gets it as a client error
+          throw err
         }
       },
     ],
