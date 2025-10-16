@@ -25,7 +25,8 @@ export const Clients: CollectionConfig = {
     {
       name: 'familyGroup',
       type: 'relationship',
-      relationTo: 'family-groups', // matches slug of FamilyGroups
+      relationTo: 'family-groups',
+      hasMany: false, // matches slug of FamilyGroups
       required: false,
     },
   ],
