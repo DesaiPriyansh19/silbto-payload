@@ -73,6 +73,7 @@ export interface Config {
     brands: Brand;
     clients: Client;
     'family-groups': FamilyGroup;
+    'product-master': ProductMaster;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -85,6 +86,7 @@ export interface Config {
     brands: BrandsSelect<false> | BrandsSelect<true>;
     clients: ClientsSelect<false> | ClientsSelect<true>;
     'family-groups': FamilyGroupsSelect<false> | FamilyGroupsSelect<true>;
+    'product-master': ProductMasterSelect<false> | ProductMasterSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -226,6 +228,28 @@ export interface FamilyGroup {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-master".
+ */
+export interface ProductMaster {
+  id: string;
+  categoryName: string;
+  dropdownGroups?:
+    | {
+        dropdownName: string;
+        options?:
+          | {
+              value: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -254,6 +278,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'family-groups';
         value: string | FamilyGroup;
+      } | null)
+    | ({
+        relationTo: 'product-master';
+        value: string | ProductMaster;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -390,6 +418,27 @@ export interface ClientsSelect<T extends boolean = true> {
 export interface FamilyGroupsSelect<T extends boolean = true> {
   headName?: T;
   reference?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "product-master_select".
+ */
+export interface ProductMasterSelect<T extends boolean = true> {
+  categoryName?: T;
+  dropdownGroups?:
+    | T
+    | {
+        dropdownName?: T;
+        options?:
+          | T
+          | {
+              value?: T;
+              id?: T;
+            };
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
