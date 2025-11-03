@@ -14,6 +14,7 @@ import { Brands } from './collections/Brands'
 import { Clients } from './collections/Clients'
 import { FamilyGroups } from './collections/FamilyGroups'
 import ProductMaster from './collections/ProductMaster'
+import { Vendors } from './collections/Vendors'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -25,7 +26,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Branches, Brands, Clients, FamilyGroups, ProductMaster],
+  collections: [Users, Media, Branches, Brands, Clients, FamilyGroups, ProductMaster, Vendors],
   cors: [
     'http://localhost:3000', // dev frontend
     'http://localhost:3001', // dev frontend alternate

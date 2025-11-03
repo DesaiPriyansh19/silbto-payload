@@ -74,6 +74,7 @@ export interface Config {
     clients: Client;
     'family-groups': FamilyGroup;
     'product-master': ProductMaster;
+    vendors: Vendor;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -87,6 +88,7 @@ export interface Config {
     clients: ClientsSelect<false> | ClientsSelect<true>;
     'family-groups': FamilyGroupsSelect<false> | FamilyGroupsSelect<true>;
     'product-master': ProductMasterSelect<false> | ProductMasterSelect<true>;
+    vendors: VendorsSelect<false> | VendorsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -250,6 +252,21 @@ export interface ProductMaster {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendors".
+ */
+export interface Vendor {
+  id: string;
+  companyName: string;
+  contactPerson: string;
+  contactNumber: string;
+  gstNumber: string;
+  address: string;
+  email?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -282,6 +299,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'product-master';
         value: string | ProductMaster;
+      } | null)
+    | ({
+        relationTo: 'vendors';
+        value: string | Vendor;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -439,6 +460,20 @@ export interface ProductMasterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vendors_select".
+ */
+export interface VendorsSelect<T extends boolean = true> {
+  companyName?: T;
+  contactPerson?: T;
+  contactNumber?: T;
+  gstNumber?: T;
+  address?: T;
+  email?: T;
   updatedAt?: T;
   createdAt?: T;
 }
