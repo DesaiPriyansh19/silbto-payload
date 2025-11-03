@@ -74,6 +74,7 @@ export interface Config {
     clients: Client;
     'family-groups': FamilyGroup;
     'product-master': ProductMaster;
+    products: Product;
     vendors: Vendor;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -88,6 +89,7 @@ export interface Config {
     clients: ClientsSelect<false> | ClientsSelect<true>;
     'family-groups': FamilyGroupsSelect<false> | FamilyGroupsSelect<true>;
     'product-master': ProductMasterSelect<false> | ProductMasterSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
     vendors: VendorsSelect<false> | VendorsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -260,6 +262,31 @@ export interface ProductMaster {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  productName: string;
+  price: number;
+  openingStock: number;
+  category: string | ProductMaster;
+  /**
+   * Stores dynamic dropdown selections (single or multi). Example: {"Size": ["M","L"], "Color": "Red"}
+   */
+  attributes?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "vendors".
  */
 export interface Vendor {
@@ -307,6 +334,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'product-master';
         value: string | ProductMaster;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: string | Product;
       } | null)
     | ({
         relationTo: 'vendors';
@@ -470,6 +501,19 @@ export interface ProductMasterSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  productName?: T;
+  price?: T;
+  openingStock?: T;
+  category?: T;
+  attributes?: T;
   updatedAt?: T;
   createdAt?: T;
 }
