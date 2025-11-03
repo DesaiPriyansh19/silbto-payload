@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload/'
+import { CollectionConfig } from 'payload'
 
 const ProductMaster: CollectionConfig = {
   slug: 'product-master',
@@ -20,7 +20,7 @@ const ProductMaster: CollectionConfig = {
     },
     {
       name: 'dropdownGroups',
-      label: 'Dropdown Groups',
+      label: 'Subcategories / Dropdown Groups',
       type: 'array',
       labels: { singular: 'Dropdown', plural: 'Dropdowns' },
       fields: [
@@ -29,11 +29,20 @@ const ProductMaster: CollectionConfig = {
           label: 'Dropdown Name',
           type: 'text',
           required: true,
-          unique: false, // unique only inside this category
+        },
+        {
+          name: 'isMultiSelect',
+          label: 'Allow Multiple Selection (Used as Checkboxes in Product)',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            description:
+              'If enabled, this dropdown will be shown as checkboxes when creating a product.',
+          },
         },
         {
           name: 'options',
-          label: 'Options',
+          label: 'Available Options',
           type: 'array',
           labels: { singular: 'Option', plural: 'Options' },
           fields: [
@@ -42,6 +51,16 @@ const ProductMaster: CollectionConfig = {
               label: 'Option Value',
               type: 'text',
               required: true,
+            },
+            {
+              name: 'isSelected',
+              label: 'Default Selected',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: {
+                description:
+                  'If enabled, this option will be selected by default when creating a product.',
+              },
             },
           ],
         },

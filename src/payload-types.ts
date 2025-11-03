@@ -238,9 +238,17 @@ export interface ProductMaster {
   dropdownGroups?:
     | {
         dropdownName: string;
+        /**
+         * If enabled, this dropdown will be shown as checkboxes when creating a product.
+         */
+        isMultiSelect?: boolean | null;
         options?:
           | {
               value: string;
+              /**
+               * If enabled, this option will be selected by default when creating a product.
+               */
+              isSelected?: boolean | null;
               id?: string | null;
             }[]
           | null;
@@ -452,10 +460,12 @@ export interface ProductMasterSelect<T extends boolean = true> {
     | T
     | {
         dropdownName?: T;
+        isMultiSelect?: T;
         options?:
           | T
           | {
               value?: T;
+              isSelected?: T;
               id?: T;
             };
         id?: T;
