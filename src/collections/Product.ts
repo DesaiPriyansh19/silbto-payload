@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
 
 const Products: CollectionConfig = {
   slug: 'products',
@@ -65,12 +65,25 @@ const Products: CollectionConfig = {
 
   hooks: {
     beforeChange: [
-      async ({ req, data }) => {
-        const user = req.user as any
+      async ({ req, data }: { req: PayloadRequest; data: any }) => {
+        const user = req.user as {
+          id: string
+          brand?: string | { id: string }
+          branches?: (string | { id: string })[]
+        }
+
         if (user) {
-          data.brand = user.brand
+          // ✅ Brand ID fix
+          if (typeof user.brand === 'object' && user.brand.id) {
+            data.brand = user.brand.id
+          } else if (typeof user.brand === 'string') {
+            data.brand = user.brand
+          }
+
+          // ✅ Branch ID fix
           if (Array.isArray(user.branches) && user.branches.length === 1) {
-            data.branch = user.branches[0]
+            const branch = user.branches[0]
+            data.branch = typeof branch === 'object' && branch.id ? branch.id : branch
           }
         }
       },

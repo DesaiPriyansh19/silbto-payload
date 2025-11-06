@@ -311,20 +311,16 @@ export interface Vendor {
  */
 export interface PurchaseOrder {
   id: string;
-  poNumber: string;
-  vendor: string | Vendor;
-  products: {
-    product: string | Product;
-    quantity: number;
-    purchasePrice: number;
-    total?: number | null;
-    id?: string | null;
-  }[];
-  totalAmount?: number | null;
-  status?: ('draft' | 'pending' | 'completed') | null;
-  createdBy?: (string | null) | User;
-  createdAt: string;
+  referenceNumber?: string | null;
+  products?:
+    | {
+        product?: string | null;
+        quantity?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -332,20 +328,16 @@ export interface PurchaseOrder {
  */
 export interface SalesOrder {
   id: string;
-  soNumber: string;
-  client: string | Client;
-  products: {
-    product: string | Product;
-    quantity: number;
-    sellingPrice: number;
-    total?: number | null;
-    id?: string | null;
-  }[];
-  totalAmount?: number | null;
-  status?: ('draft' | 'pending' | 'completed') | null;
-  createdBy?: (string | null) | User;
-  createdAt: string;
+  referenceNumber?: string | null;
+  products?:
+    | {
+        product?: string | null;
+        quantity?: number | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -611,44 +603,32 @@ export interface VendorsSelect<T extends boolean = true> {
  * via the `definition` "purchase-orders_select".
  */
 export interface PurchaseOrdersSelect<T extends boolean = true> {
-  poNumber?: T;
-  vendor?: T;
+  referenceNumber?: T;
   products?:
     | T
     | {
         product?: T;
         quantity?: T;
-        purchasePrice?: T;
-        total?: T;
         id?: T;
       };
-  totalAmount?: T;
-  status?: T;
-  createdBy?: T;
-  createdAt?: T;
   updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "sales-orders_select".
  */
 export interface SalesOrdersSelect<T extends boolean = true> {
-  soNumber?: T;
-  client?: T;
+  referenceNumber?: T;
   products?:
     | T
     | {
         product?: T;
         quantity?: T;
-        sellingPrice?: T;
-        total?: T;
         id?: T;
       };
-  totalAmount?: T;
-  status?: T;
-  createdBy?: T;
-  createdAt?: T;
   updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
