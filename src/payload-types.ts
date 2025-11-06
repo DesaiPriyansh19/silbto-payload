@@ -76,6 +76,9 @@ export interface Config {
     'product-master': ProductMaster;
     products: Product;
     vendors: Vendor;
+    'purchase-orders': PurchaseOrder;
+    'sales-orders': SalesOrder;
+    inventory: Inventory;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -91,6 +94,9 @@ export interface Config {
     'product-master': ProductMasterSelect<false> | ProductMasterSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     vendors: VendorsSelect<false> | VendorsSelect<true>;
+    'purchase-orders': PurchaseOrdersSelect<false> | PurchaseOrdersSelect<true>;
+    'sales-orders': SalesOrdersSelect<false> | SalesOrdersSelect<true>;
+    inventory: InventorySelect<false> | InventorySelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -302,6 +308,60 @@ export interface Vendor {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchase-orders".
+ */
+export interface PurchaseOrder {
+  id: string;
+  poNumber: string;
+  vendor: string | Vendor;
+  products: {
+    product: string | Product;
+    quantity: number;
+    purchasePrice: number;
+    total?: number | null;
+    id?: string | null;
+  }[];
+  totalAmount?: number | null;
+  status?: ('draft' | 'pending' | 'completed') | null;
+  createdBy?: (string | null) | User;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales-orders".
+ */
+export interface SalesOrder {
+  id: string;
+  soNumber: string;
+  client: string | Client;
+  products: {
+    product: string | Product;
+    quantity: number;
+    sellingPrice: number;
+    total?: number | null;
+    id?: string | null;
+  }[];
+  totalAmount?: number | null;
+  status?: ('draft' | 'pending' | 'completed') | null;
+  createdBy?: (string | null) | User;
+  createdAt: string;
+  updatedAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inventory".
+ */
+export interface Inventory {
+  id: string;
+  product: string | Product;
+  currentStock?: number | null;
+  lastUpdated?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -342,6 +402,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'vendors';
         value: string | Vendor;
+      } | null)
+    | ({
+        relationTo: 'purchase-orders';
+        value: string | PurchaseOrder;
+      } | null)
+    | ({
+        relationTo: 'sales-orders';
+        value: string | SalesOrder;
+      } | null)
+    | ({
+        relationTo: 'inventory';
+        value: string | Inventory;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -528,6 +600,61 @@ export interface VendorsSelect<T extends boolean = true> {
   gstNumber?: T;
   address?: T;
   email?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchase-orders_select".
+ */
+export interface PurchaseOrdersSelect<T extends boolean = true> {
+  poNumber?: T;
+  vendor?: T;
+  products?:
+    | T
+    | {
+        product?: T;
+        quantity?: T;
+        purchasePrice?: T;
+        total?: T;
+        id?: T;
+      };
+  totalAmount?: T;
+  status?: T;
+  createdBy?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "sales-orders_select".
+ */
+export interface SalesOrdersSelect<T extends boolean = true> {
+  soNumber?: T;
+  client?: T;
+  products?:
+    | T
+    | {
+        product?: T;
+        quantity?: T;
+        sellingPrice?: T;
+        total?: T;
+        id?: T;
+      };
+  totalAmount?: T;
+  status?: T;
+  createdBy?: T;
+  createdAt?: T;
+  updatedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inventory_select".
+ */
+export interface InventorySelect<T extends boolean = true> {
+  product?: T;
+  currentStock?: T;
+  lastUpdated?: T;
   updatedAt?: T;
   createdAt?: T;
 }

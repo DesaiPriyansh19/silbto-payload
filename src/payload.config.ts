@@ -16,6 +16,9 @@ import { FamilyGroups } from './collections/FamilyGroups'
 import ProductMaster from './collections/ProductMaster'
 import { Vendors } from './collections/Vendors'
 import Products from './collections/Product'
+import { PurchaseOrders } from './collections/PurchaseOrders'
+import { SalesOrders } from './collections/SalesOrders'
+import { Inventory } from './collections/Inventory'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -37,6 +40,9 @@ export default buildConfig({
     ProductMaster,
     Products,
     Vendors,
+    PurchaseOrders,
+    SalesOrders,
+    Inventory,
   ],
   cors: [
     'http://localhost:3000', // dev frontend
