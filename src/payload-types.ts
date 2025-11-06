@@ -274,11 +274,8 @@ export interface Product {
   id: string;
   productName: string;
   price: number;
-  openingStock: number;
+  openingStock?: number | null;
   category: string | ProductMaster;
-  /**
-   * Stores dynamic dropdown selections (single or multi). Example: {"Size": ["M","L"], "Color": "Red"}
-   */
   attributes?:
     | {
         [k: string]: unknown;
@@ -288,6 +285,8 @@ export interface Product {
     | number
     | boolean
     | null;
+  brand: string | Brand;
+  branch: string | Branch;
   updatedAt: string;
   createdAt: string;
 }
@@ -355,6 +354,8 @@ export interface SalesOrder {
 export interface Inventory {
   id: string;
   product: string | Product;
+  brand: string | Brand;
+  branch: string | Branch;
   currentStock?: number | null;
   lastUpdated?: string | null;
   updatedAt: string;
@@ -586,6 +587,8 @@ export interface ProductsSelect<T extends boolean = true> {
   openingStock?: T;
   category?: T;
   attributes?: T;
+  brand?: T;
+  branch?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -653,6 +656,8 @@ export interface SalesOrdersSelect<T extends boolean = true> {
  */
 export interface InventorySelect<T extends boolean = true> {
   product?: T;
+  brand?: T;
+  branch?: T;
   currentStock?: T;
   lastUpdated?: T;
   updatedAt?: T;

@@ -16,7 +16,18 @@ export const Inventory: CollectionConfig = {
       type: 'relationship',
       relationTo: 'products',
       required: true,
-      unique: true,
+    },
+    {
+      name: 'brand',
+      type: 'relationship',
+      relationTo: 'brands',
+      required: true,
+    },
+    {
+      name: 'branch',
+      type: 'relationship',
+      relationTo: 'branches',
+      required: true,
     },
     {
       name: 'currentStock',
@@ -30,6 +41,7 @@ export const Inventory: CollectionConfig = {
       admin: { readOnly: true },
     },
   ],
+
   hooks: {
     beforeChange: [
       async ({ data }) => {
