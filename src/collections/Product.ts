@@ -44,7 +44,7 @@ const Products: CollectionConfig = {
       type: 'json',
     },
 
-    // 🔹 Automatically link product to brand & branch
+    // 🔹 Auto-link product to brand & branch
     {
       name: 'brand',
       label: 'Brand',
@@ -66,11 +66,10 @@ const Products: CollectionConfig = {
   hooks: {
     beforeChange: [
       async ({ req, data }) => {
-        // 🔹 Auto-assign brand & branch based on logged-in user
-        const user = req.user
+        const user = req.user as any
         if (user) {
           data.brand = user.brand
-          if (user.branches?.length === 1) {
+          if (Array.isArray(user.branches) && user.branches.length === 1) {
             data.branch = user.branches[0]
           }
         }
@@ -80,17 +79,17 @@ const Products: CollectionConfig = {
     afterChange: [
       async ({ doc, operation, req }) => {
         const payload = req.payload
-        if (operation !== 'create' && operation !== 'update') return
+        if (!['create', 'update'].includes(operation)) return
 
-        // Check if inventory record already exists for this product + branch
+        const isoDate = new Date().toISOString()
+
+        // 🔹 Check if inventory record exists for this product + branch
         const existing = await payload.find({
           collection: 'inventory',
           where: {
             and: [{ product: { equals: doc.id } }, { branch: { equals: doc.branch } }],
           },
         })
-
-        const isoDate = new Date().toISOString()
 
         if (existing?.docs?.length > 0) {
           await payload.update({

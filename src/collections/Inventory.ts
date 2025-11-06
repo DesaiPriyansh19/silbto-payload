@@ -41,11 +41,10 @@ export const Inventory: CollectionConfig = {
       admin: { readOnly: true },
     },
   ],
-
   hooks: {
     beforeChange: [
       async ({ data }) => {
-        data.lastUpdated = new Date()
+        data.lastUpdated = new Date().toISOString()
       },
     ],
   },
