@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 const Products: CollectionConfig = {
   slug: 'products',
@@ -43,13 +43,51 @@ const Products: CollectionConfig = {
     {
       name: 'attributes',
       label: 'Category Attributes (Dynamic)',
-      type: 'json', // ✅ allows flexible structure for dynamic attributes
+      type: 'json',
       admin: {
         description:
           'Stores dynamic dropdown selections (single or multi). Example: {"Size": ["M","L"], "Color": "Red"}',
       },
     },
   ],
+
+  hooks: {
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        const payload = req.payload
+
+        if (operation !== 'create' && operation !== 'update') return
+
+        // check if inventory entry exists
+        const existing = await payload.find({
+          collection: 'inventory',
+          where: { product: { equals: doc.id } },
+        })
+
+        const isoDate = new Date().toISOString() // ✅ TS-safe string format
+
+        if (existing?.docs?.length > 0) {
+          await payload.update({
+            collection: 'inventory',
+            id: existing.docs[0].id,
+            data: {
+              currentStock: doc.openingStock,
+              lastUpdated: isoDate,
+            },
+          })
+        } else {
+          await payload.create({
+            collection: 'inventory',
+            data: {
+              product: doc.id,
+              currentStock: doc.openingStock,
+              lastUpdated: isoDate,
+            },
+          })
+        }
+      },
+    ],
+  },
 }
 
 export default Products
