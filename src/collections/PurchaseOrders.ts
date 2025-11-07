@@ -19,7 +19,7 @@ const PurchaseOrders: CollectionConfig = {
   },
 
   fields: [
-    // 🔹 Auto-generated internal reference number (PO-0001)
+    // 🔹 Auto-generated unique internal reference number (PO-0001, PO-0002, ...)
     {
       name: 'referenceNumber',
       type: 'text',
@@ -28,27 +28,29 @@ const PurchaseOrders: CollectionConfig = {
       hooks: {
         beforeValidate: [
           async ({ value, req }) => {
-            if (!value) {
-              const last = await req.payload.find({
-                collection: 'purchase-orders',
-                sort: '-createdAt',
-                limit: 1,
-              })
-              let nextNum = 1
-              if (last?.docs?.length > 0) {
-                const lastRef = last.docs[0].referenceNumber as string
-                const lastNum = parseInt(lastRef?.split('-')[1] || '0')
-                nextNum = lastNum + 1
+            if (value) return value // keep if already exists
+            const lastPO = await req.payload.find({
+              collection: 'purchase-orders',
+              sort: '-createdAt',
+              limit: 1,
+            })
+
+            let nextNumber = 1
+            if (lastPO?.docs?.length > 0) {
+              const lastRef = lastPO.docs[0].referenceNumber as string
+              const match = lastRef?.match(/PO-(\d+)/)
+              if (match) {
+                nextNumber = parseInt(match[1]) + 1
               }
-              return `PO-${String(nextNum).padStart(4, '0')}`
             }
-            return value
+
+            return `PO-${String(nextNumber).padStart(4, '0')}`
           },
         ],
       },
     },
 
-    // 🔹 External PO invoice number (from vendor)
+    // 🔹 Vendor Invoice
     {
       name: 'vendorInvoiceNumber',
       label: 'Vendor Invoice Number',
@@ -56,7 +58,7 @@ const PurchaseOrders: CollectionConfig = {
       required: true,
     },
 
-    // 🔹 Vendor selection
+    // 🔹 Vendor
     {
       name: 'vendor',
       label: 'Vendor',
@@ -73,24 +75,12 @@ const PurchaseOrders: CollectionConfig = {
       required: true,
     },
 
-    // 🔹 Challan & E-Way Info
-    {
-      name: 'challanNo',
-      label: 'Challan No.',
-      type: 'text',
-    },
-    {
-      name: 'challanDate',
-      label: 'Challan Date',
-      type: 'date',
-    },
-    {
-      name: 'ewayBillNo',
-      label: 'E-Way Bill No.',
-      type: 'text',
-    },
+    // 🔹 Challan & E-way details
+    { name: 'challanNo', label: 'Challan No.', type: 'text' },
+    { name: 'challanDate', label: 'Challan Date', type: 'date' },
+    { name: 'ewayBillNo', label: 'E-Way Bill No.', type: 'text' },
 
-    // 🔹 Products List
+    // 🔹 Product List
     {
       name: 'products',
       label: 'Products',
@@ -104,46 +94,23 @@ const PurchaseOrders: CollectionConfig = {
           relationTo: 'products',
           required: true,
         },
-        {
-          name: 'productId',
-          label: 'Product ID (auto or vendor’s code)',
-          type: 'text',
-        },
-        {
-          name: 'description',
-          label: 'Description / Note',
-          type: 'textarea',
-        },
+        { name: 'productId', label: 'Product ID / Vendor Code', type: 'text' },
+        { name: 'description', label: 'Description / Note', type: 'textarea' },
         {
           name: 'uom',
-          label: 'UOM (Unit of Measurement)',
+          label: 'Unit of Measurement (UOM)',
           type: 'text',
-          admin: {
-            placeholder: 'e.g., kg, pcs, ml, box',
-          },
+          admin: { placeholder: 'e.g., kg, pcs, ml, box' },
         },
-        {
-          name: 'hsnSac',
-          label: 'HSN / SAC Code',
-          type: 'text',
-        },
-        {
-          name: 'quantity',
-          label: 'Quantity',
-          type: 'number',
-          required: true,
-        },
+        { name: 'hsnSac', label: 'HSN / SAC Code', type: 'text' },
+        { name: 'quantity', label: 'Quantity', type: 'number', required: true },
         {
           name: 'unitPrice',
           label: 'Unit Price (₹)',
           type: 'number',
           required: true,
         },
-        {
-          name: 'discount',
-          label: 'Discount (₹)',
-          type: 'number',
-        },
+        { name: 'discount', label: 'Discount (₹)', type: 'number' },
         {
           name: 'totalPrice',
           label: 'Total Price (₹)',
@@ -167,30 +134,12 @@ const PurchaseOrders: CollectionConfig = {
     },
 
     // 🔹 Totals
-    {
-      name: 'subtotal',
-      type: 'number',
-      admin: { readOnly: true },
-    },
-    {
-      name: 'taxPercent',
-      label: 'Tax (%)',
-      type: 'number',
-    },
-    {
-      name: 'taxAmount',
-      label: 'Tax Amount (₹)',
-      type: 'number',
-      admin: { readOnly: true },
-    },
-    {
-      name: 'totalAmount',
-      label: 'Grand Total (₹)',
-      type: 'number',
-      admin: { readOnly: true },
-    },
+    { name: 'subtotal', type: 'number', admin: { readOnly: true } },
+    { name: 'taxPercent', label: 'Tax (%)', type: 'number' },
+    { name: 'taxAmount', label: 'Tax Amount (₹)', type: 'number', admin: { readOnly: true } },
+    { name: 'totalAmount', label: 'Grand Total (₹)', type: 'number', admin: { readOnly: true } },
 
-    // 🔹 Payment Info
+    // 🔹 Payment
     {
       name: 'paymentType',
       label: 'Payment Type',
@@ -214,7 +163,7 @@ const PurchaseOrders: CollectionConfig = {
       defaultValue: 'unpaid',
     },
 
-    // 🔹 Status & Remarks
+    // 🔹 Order Status
     {
       name: 'status',
       label: 'Order Status',
@@ -226,14 +175,10 @@ const PurchaseOrders: CollectionConfig = {
       ],
       defaultValue: 'pending',
     },
-    {
-      name: 'remarks',
-      label: 'Remarks / Notes',
-      type: 'textarea',
-    },
+    { name: 'remarks', label: 'Remarks / Notes', type: 'textarea' },
   ],
 
-  // 🔹 Hooks for auto totals
+  // 🔹 Auto total calculation before save
   hooks: {
     beforeChange: [
       async ({ data }) => {
@@ -247,11 +192,13 @@ const PurchaseOrders: CollectionConfig = {
             return sum + qty * price - disc
           }, 0)
 
-          const tax = data.taxPercent || 0
-          const taxAmount = subtotal * (tax / 100)
+          const taxPercent = data.taxPercent || 0
+          const taxAmount = subtotal * (taxPercent / 100)
+          const total = subtotal + taxAmount
+
           data.subtotal = subtotal
           data.taxAmount = taxAmount
-          data.totalAmount = subtotal + taxAmount
+          data.totalAmount = total
         }
 
         return data
