@@ -311,14 +311,31 @@ export interface Vendor {
  */
 export interface PurchaseOrder {
   id: string;
-  referenceNumber?: string | null;
-  products?:
-    | {
-        product?: string | null;
-        quantity?: number | null;
-        id?: string | null;
-      }[]
-    | null;
+  poNumber: string;
+  vendor: string | Vendor;
+  vendorInvoiceNumber?: string | null;
+  orderDate: string;
+  challanNo?: string | null;
+  challanDate?: string | null;
+  ewayBillNo?: string | null;
+  products: {
+    product: string | Product;
+    hsnSac?: string | null;
+    uom?: string | null;
+    quantity: number;
+    unitPrice: number;
+    discount?: number | null;
+    totalPrice?: number | null;
+    note?: string | null;
+    id?: string | null;
+  }[];
+  subtotal?: number | null;
+  taxPercent?: number | null;
+  taxAmount?: number | null;
+  totalAmount?: number | null;
+  paymentType?: ('credit' | 'cash' | 'cheque' | 'online') | null;
+  paymentStatus?: ('unpaid' | 'partial' | 'paid') | null;
+  remarks?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -603,14 +620,33 @@ export interface VendorsSelect<T extends boolean = true> {
  * via the `definition` "purchase-orders_select".
  */
 export interface PurchaseOrdersSelect<T extends boolean = true> {
-  referenceNumber?: T;
+  poNumber?: T;
+  vendor?: T;
+  vendorInvoiceNumber?: T;
+  orderDate?: T;
+  challanNo?: T;
+  challanDate?: T;
+  ewayBillNo?: T;
   products?:
     | T
     | {
         product?: T;
+        hsnSac?: T;
+        uom?: T;
         quantity?: T;
+        unitPrice?: T;
+        discount?: T;
+        totalPrice?: T;
+        note?: T;
         id?: T;
       };
+  subtotal?: T;
+  taxPercent?: T;
+  taxAmount?: T;
+  totalAmount?: T;
+  paymentType?: T;
+  paymentStatus?: T;
+  remarks?: T;
   updatedAt?: T;
   createdAt?: T;
 }

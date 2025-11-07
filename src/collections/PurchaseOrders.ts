@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
 
 const PurchaseOrders: CollectionConfig = {
   slug: 'purchase-orders',
@@ -7,58 +7,18 @@ const PurchaseOrders: CollectionConfig = {
     plural: 'Purchase Orders',
   },
   admin: {
-    useAsTitle: 'referenceNumber',
-    defaultColumns: [
-      'referenceNumber',
-      'vendor',
-      'orderDate',
-      'totalAmount',
-      'paymentType',
-      'status',
-    ],
+    useAsTitle: 'poNumber',
+    group: 'Purchases',
   },
 
   fields: [
-    // 🔹 Auto-generated unique internal reference number (PO-0001, PO-0002, ...)
     {
-      name: 'referenceNumber',
+      name: 'poNumber',
+      label: 'PO Number',
       type: 'text',
       unique: true,
-      admin: { readOnly: true },
-      hooks: {
-        beforeValidate: [
-          async ({ value, req }) => {
-            if (value) return value // keep if already exists
-            const lastPO = await req.payload.find({
-              collection: 'purchase-orders',
-              sort: '-createdAt',
-              limit: 1,
-            })
-
-            let nextNumber = 1
-            if (lastPO?.docs?.length > 0) {
-              const lastRef = lastPO.docs[0].referenceNumber as string
-              const match = lastRef?.match(/PO-(\d+)/)
-              if (match) {
-                nextNumber = parseInt(match[1]) + 1
-              }
-            }
-
-            return `PO-${String(nextNumber).padStart(4, '0')}`
-          },
-        ],
-      },
-    },
-
-    // 🔹 Vendor Invoice
-    {
-      name: 'vendorInvoiceNumber',
-      label: 'Vendor Invoice Number',
-      type: 'text',
       required: true,
     },
-
-    // 🔹 Vendor
     {
       name: 'vendor',
       label: 'Vendor',
@@ -66,21 +26,32 @@ const PurchaseOrders: CollectionConfig = {
       relationTo: 'vendors',
       required: true,
     },
-
-    // 🔹 Order Date
+    {
+      name: 'vendorInvoiceNumber',
+      label: 'Vendor Invoice No.',
+      type: 'text',
+    },
     {
       name: 'orderDate',
       label: 'Order Date',
       type: 'date',
       required: true,
     },
-
-    // 🔹 Challan & E-way details
-    { name: 'challanNo', label: 'Challan No.', type: 'text' },
-    { name: 'challanDate', label: 'Challan Date', type: 'date' },
-    { name: 'ewayBillNo', label: 'E-Way Bill No.', type: 'text' },
-
-    // 🔹 Product List
+    {
+      name: 'challanNo',
+      label: 'Challan No.',
+      type: 'text',
+    },
+    {
+      name: 'challanDate',
+      label: 'Challan Date',
+      type: 'date',
+    },
+    {
+      name: 'ewayBillNo',
+      label: 'E-Way Bill No.',
+      type: 'text',
+    },
     {
       name: 'products',
       label: 'Products',
@@ -94,52 +65,73 @@ const PurchaseOrders: CollectionConfig = {
           relationTo: 'products',
           required: true,
         },
-        { name: 'productId', label: 'Product ID / Vendor Code', type: 'text' },
-        { name: 'description', label: 'Description / Note', type: 'textarea' },
+        {
+          name: 'hsnSac',
+          label: 'HSN / SAC Code',
+          type: 'text',
+        },
         {
           name: 'uom',
-          label: 'Unit of Measurement (UOM)',
+          label: 'UOM (Unit of Measurement)',
           type: 'text',
-          admin: { placeholder: 'e.g., kg, pcs, ml, box' },
         },
-        { name: 'hsnSac', label: 'HSN / SAC Code', type: 'text' },
-        { name: 'quantity', label: 'Quantity', type: 'number', required: true },
+        {
+          name: 'quantity',
+          label: 'Quantity',
+          type: 'number',
+          required: true,
+          min: 0,
+        },
         {
           name: 'unitPrice',
           label: 'Unit Price (₹)',
           type: 'number',
           required: true,
+          min: 0,
         },
-        { name: 'discount', label: 'Discount (₹)', type: 'number' },
+        {
+          name: 'discount',
+          label: 'Discount (%)',
+          type: 'number',
+          defaultValue: 0,
+        },
         {
           name: 'totalPrice',
           label: 'Total Price (₹)',
           type: 'number',
           admin: { readOnly: true },
-          hooks: {
-            beforeChange: [
-              ({ data }) => {
-                if (data) {
-                  const qty = data.quantity || 0
-                  const price = data.unitPrice || 0
-                  const discount = data.discount || 0
-                  return qty * price - discount
-                }
-                return 0
-              },
-            ],
-          },
+        },
+        {
+          name: 'note',
+          label: 'Description / Note',
+          type: 'textarea',
         },
       ],
     },
-
-    // 🔹 Totals
-    { name: 'subtotal', type: 'number', admin: { readOnly: true } },
-    { name: 'taxPercent', label: 'Tax (%)', type: 'number' },
-    { name: 'taxAmount', label: 'Tax Amount (₹)', type: 'number', admin: { readOnly: true } },
-    { name: 'totalAmount', label: 'Grand Total (₹)', type: 'number', admin: { readOnly: true } },
-
-    // 🔹 Payment
+    {
+      name: 'subtotal',
+      label: 'Subtotal (₹)',
+      type: 'number',
+      admin: { readOnly: true },
+    },
+    {
+      name: 'taxPercent',
+      label: 'Tax (%)',
+      type: 'number',
+      defaultValue: 0,
+    },
+    {
+      name: 'taxAmount',
+      label: 'Tax Amount (₹)',
+      type: 'number',
+      admin: { readOnly: true },
+    },
+    {
+      name: 'totalAmount',
+      label: 'Total Amount (₹)',
+      type: 'number',
+      admin: { readOnly: true },
+    },
     {
       name: 'paymentType',
       label: 'Payment Type',
@@ -150,6 +142,7 @@ const PurchaseOrders: CollectionConfig = {
         { label: 'Cheque', value: 'cheque' },
         { label: 'Online', value: 'online' },
       ],
+      defaultValue: 'credit',
     },
     {
       name: 'paymentStatus',
@@ -162,51 +155,93 @@ const PurchaseOrders: CollectionConfig = {
       ],
       defaultValue: 'unpaid',
     },
-
-    // 🔹 Order Status
     {
-      name: 'status',
-      label: 'Order Status',
-      type: 'select',
-      options: [
-        { label: 'Pending', value: 'pending' },
-        { label: 'Received', value: 'received' },
-        { label: 'Cancelled', value: 'cancelled' },
-      ],
-      defaultValue: 'pending',
+      name: 'remarks',
+      label: 'Remarks',
+      type: 'textarea',
     },
-    { name: 'remarks', label: 'Remarks / Notes', type: 'textarea' },
   ],
 
-  // 🔹 Auto total calculation before save
   hooks: {
+    // ✅ Auto Calculate Totals
     beforeChange: [
       async ({ data }) => {
-        if (!data) return data
+        if (!data?.products) return
 
-        if (Array.isArray(data.products)) {
-          const subtotal = data.products.reduce((sum, item) => {
-            const qty = item.quantity || 0
-            const price = item.unitPrice || 0
-            const disc = item.discount || 0
-            return sum + qty * price - disc
-          }, 0)
+        let subtotal = 0
+        data.products = data.products.map((p: any) => {
+          const qty = Number(p.quantity) || 0
+          const price = Number(p.unitPrice) || 0
+          const discount = Number(p.discount) || 0
 
-          const taxPercent = data.taxPercent || 0
-          const taxAmount = subtotal * (taxPercent / 100)
-          const total = subtotal + taxAmount
+          const total = qty * price * (1 - discount / 100)
+          subtotal += total
+          return { ...p, totalPrice: total }
+        })
 
-          data.subtotal = subtotal
-          data.taxAmount = taxAmount
-          data.totalAmount = total
+        data.subtotal = subtotal
+        const taxPercent = Number(data.taxPercent) || 0
+        const taxAmount = (subtotal * taxPercent) / 100
+        data.taxAmount = taxAmount
+        data.totalAmount = subtotal + taxAmount
+      },
+    ],
+
+    // ✅ Update Inventory After PO is Created
+    afterChange: [
+      async ({ operation, doc, req }) => {
+        if (operation !== 'create') return
+
+        const payload = req.payload
+
+        for (const item of doc.products) {
+          const productId = item.product
+          const qty = Number(item.quantity)
+
+          if (!productId || !qty) continue
+
+          // 🔹 Find product to get branch/brand
+          const product = await payload.findByID({
+            collection: 'products',
+            id: productId,
+          })
+
+          if (!product) continue
+
+          // 🔹 Check if inventory exists for this product & branch
+          const existing = await payload.find({
+            collection: 'inventory',
+            where: {
+              and: [{ product: { equals: productId } }, { branch: { equals: product.branch } }],
+            },
+          })
+
+          if (existing?.docs?.length > 0) {
+            const current = existing.docs[0]
+            await payload.update({
+              collection: 'inventory',
+              id: current.id,
+              data: {
+                currentStock: (current.currentStock || 0) + qty,
+                lastUpdated: new Date().toISOString(),
+              },
+            })
+          } else {
+            await payload.create({
+              collection: 'inventory',
+              data: {
+                product: productId,
+                brand: product.brand,
+                branch: product.branch,
+                currentStock: qty,
+                lastUpdated: new Date().toISOString(),
+              },
+            })
+          }
         }
-
-        return data
       },
     ],
   },
-
-  timestamps: true,
 }
 
 export default PurchaseOrders
