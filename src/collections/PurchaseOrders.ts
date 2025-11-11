@@ -24,7 +24,7 @@ export const PurchaseOrders: CollectionConfig = {
       required: true,
     },
     {
-      name: 'items', // matches your frontend now
+      name: 'items',
       type: 'array',
       required: true,
       minRows: 1,
@@ -46,48 +46,57 @@ export const PurchaseOrders: CollectionConfig = {
     { name: 'paymentType', type: 'text' },
     { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'] },
     { name: 'remarks', type: 'textarea' },
+
+    // ✅ Brand (admin can select, user auto)
     {
       name: 'brand',
       type: 'relationship',
       relationTo: 'brands',
       required: true,
-      admin: { readOnly: true },
+      admin: {
+        condition: () => true,
+      },
     },
+
+    // ✅ Branch (admin can select, user auto)
     {
       name: 'branch',
       type: 'relationship',
       relationTo: 'branches',
       required: true,
-      admin: { readOnly: true },
+      admin: {
+        condition: () => true,
+      },
     },
   ],
+
   hooks: {
     beforeChange: [
       async ({ req, data }: { req: PayloadRequest; data: any }) => {
         const user = req.user as {
           id: string
+          role?: string
           brand?: string | { id: string }
           branches?: (string | { id: string })[]
         }
 
-        // ✅ Attach brand automatically
-        if (user?.brand) {
-          if (typeof user.brand === 'object' && user.brand.id) {
-            data.brand = user.brand.id
-          } else if (typeof user.brand === 'string') {
-            data.brand = user.brand
+        // 🧠 Only auto-assign if NOT admin
+        if (user?.role !== 'admin') {
+          // Auto-attach brand
+          if (user?.brand) {
+            if (typeof user.brand === 'object' && user.brand.id) data.brand = user.brand.id
+            else if (typeof user.brand === 'string') data.brand = user.brand
+          }
+
+          // Auto-attach first branch
+          if (user?.branches?.length) {
+            const first = user.branches[0]
+            if (typeof first === 'object' && first.id) data.branch = first.id
+            else if (typeof first === 'string') data.branch = first
           }
         }
 
-        // ✅ Attach branch automatically (safe for array)
-        if (user?.branches && Array.isArray(user.branches) && user.branches.length > 0) {
-          const firstBranch = user.branches[0]
-          if (typeof firstBranch === 'object' && firstBranch.id) {
-            data.branch = firstBranch.id
-          } else if (typeof firstBranch === 'string') {
-            data.branch = firstBranch
-          }
-        }
+        return data
       },
     ],
   },
