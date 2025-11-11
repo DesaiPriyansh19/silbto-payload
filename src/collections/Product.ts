@@ -1,6 +1,6 @@
-import type { CollectionConfig, PayloadRequest } from 'payload'
+import type { CollectionConfig } from 'payload'
 
-const Products: CollectionConfig = {
+export const Products: CollectionConfig = {
   slug: 'products',
   labels: {
     singular: 'Product',
@@ -10,44 +10,34 @@ const Products: CollectionConfig = {
     useAsTitle: 'productName',
     group: 'Products',
   },
+  access: {
+    read: ({ req: { user } }) => !!user,
+    create: ({ req: { user } }) => !!user,
+    update: ({ req: { user } }) => !!user,
+    delete: ({ req: { user } }) => !!user,
+  },
   fields: [
     {
       name: 'productName',
-      label: 'Product Name',
       type: 'text',
       required: true,
     },
     {
+      name: 'description',
+      type: 'textarea',
+    },
+    {
       name: 'price',
-      label: 'Price (₹)',
       type: 'number',
       required: true,
-      min: 0,
     },
     {
-      name: 'openingStock',
-      label: 'Opening Stock',
-      type: 'number',
-      defaultValue: 0,
-      min: 0,
+      name: 'image',
+      type: 'upload',
+      relationTo: 'media', // optional if you have media enabled
     },
-    {
-      name: 'category',
-      label: 'Category',
-      type: 'relationship',
-      relationTo: 'product-master',
-      required: true,
-    },
-    {
-      name: 'attributes',
-      label: 'Category Attributes (Dynamic)',
-      type: 'json',
-    },
-
-    // 🔹 Auto-link product to brand & branch
     {
       name: 'brand',
-      label: 'Brand',
       type: 'relationship',
       relationTo: 'brands',
       required: true,
@@ -55,7 +45,6 @@ const Products: CollectionConfig = {
     },
     {
       name: 'branch',
-      label: 'Branch',
       type: 'relationship',
       relationTo: 'branches',
       required: true,
@@ -65,69 +54,15 @@ const Products: CollectionConfig = {
 
   hooks: {
     beforeChange: [
-      async ({ req, data }: { req: PayloadRequest; data: any }) => {
-        const user = req.user as {
-          id: string
-          brand?: string | { id: string }
-          branches?: (string | { id: string })[]
-        }
-
-        if (user) {
-          // ✅ Brand ID fix
-          if (typeof user.brand === 'object' && user.brand.id) {
-            data.brand = user.brand.id
-          } else if (typeof user.brand === 'string') {
-            data.brand = user.brand
-          }
-
-          // ✅ Branch ID fix
-          if (Array.isArray(user.branches) && user.branches.length === 1) {
-            const branch = user.branches[0]
-            data.branch = typeof branch === 'object' && branch.id ? branch.id : branch
+      async ({ req, data, operation }) => {
+        if (['create', 'update'].includes(operation)) {
+          if (req.user) {
+            data.brand = req.user.brand
+            data.branch = req.user.branches
           }
         }
-      },
-    ],
-
-    afterChange: [
-      async ({ doc, operation, req }) => {
-        const payload = req.payload
-        if (!['create', 'update'].includes(operation)) return
-
-        const isoDate = new Date().toISOString()
-
-        // 🔹 Check if inventory record exists for this product + branch
-        const existing = await payload.find({
-          collection: 'inventory',
-          where: {
-            and: [{ product: { equals: doc.id } }, { branch: { equals: doc.branch } }],
-          },
-        })
-
-        if (existing?.docs?.length > 0) {
-          await payload.update({
-            collection: 'inventory',
-            id: existing.docs[0].id,
-            data: {
-              currentStock: doc.openingStock,
-              lastUpdated: isoDate,
-            },
-          })
-        } else {
-          await payload.create({
-            collection: 'inventory',
-            data: {
-              product: doc.id,
-              branch: doc.branch,
-              brand: doc.brand,
-              currentStock: doc.openingStock,
-              lastUpdated: isoDate,
-            },
-          })
-        }
+        return data
       },
     ],
   },
 }
-
-export default Products

@@ -8,7 +8,13 @@ export const Inventory: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'product',
-    group: 'Products',
+    group: 'Inventory',
+  },
+  access: {
+    read: ({ req: { user } }) => !!user,
+    create: ({ req: { user } }) => !!user,
+    update: ({ req: { user } }) => !!user,
+    delete: ({ req: { user } }) => !!user,
   },
   fields: [
     {
@@ -33,19 +39,8 @@ export const Inventory: CollectionConfig = {
       name: 'currentStock',
       type: 'number',
       defaultValue: 0,
-      min: 0,
-    },
-    {
-      name: 'lastUpdated',
-      type: 'date',
-      admin: { readOnly: true },
+      required: true,
     },
   ],
-  hooks: {
-    beforeChange: [
-      async ({ data }) => {
-        data.lastUpdated = new Date().toISOString()
-      },
-    ],
-  },
+  timestamps: true,
 }

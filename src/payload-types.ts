@@ -273,18 +273,9 @@ export interface ProductMaster {
 export interface Product {
   id: string;
   productName: string;
+  description?: string | null;
   price: number;
-  openingStock?: number | null;
-  category: string | ProductMaster;
-  attributes?:
-    | {
-        [k: string]: unknown;
-      }
-    | unknown[]
-    | string
-    | number
-    | boolean
-    | null;
+  image?: (string | null) | Media;
   brand: string | Brand;
   branch: string | Branch;
   updatedAt: string;
@@ -312,30 +303,15 @@ export interface Vendor {
 export interface PurchaseOrder {
   id: string;
   poNumber: string;
-  vendor: string | Vendor;
-  vendorInvoiceNumber?: string | null;
-  orderDate: string;
-  challanNo?: string | null;
-  challanDate?: string | null;
-  ewayBillNo?: string | null;
-  products: {
+  date: string;
+  items: {
     product: string | Product;
-    hsnSac?: string | null;
-    uom?: string | null;
     quantity: number;
     unitPrice: number;
-    discount?: number | null;
-    totalPrice?: number | null;
-    note?: string | null;
     id?: string | null;
   }[];
-  subtotal?: number | null;
-  taxPercent?: number | null;
-  taxAmount?: number | null;
-  totalAmount?: number | null;
-  paymentType?: ('credit' | 'cash' | 'cheque' | 'online') | null;
-  paymentStatus?: ('unpaid' | 'partial' | 'paid') | null;
-  remarks?: string | null;
+  brand: string | Brand;
+  branch: string | Branch;
   updatedAt: string;
   createdAt: string;
 }
@@ -365,8 +341,7 @@ export interface Inventory {
   product: string | Product;
   brand: string | Brand;
   branch: string | Branch;
-  currentStock?: number | null;
-  lastUpdated?: string | null;
+  currentStock: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -592,10 +567,9 @@ export interface ProductMasterSelect<T extends boolean = true> {
  */
 export interface ProductsSelect<T extends boolean = true> {
   productName?: T;
+  description?: T;
   price?: T;
-  openingStock?: T;
-  category?: T;
-  attributes?: T;
+  image?: T;
   brand?: T;
   branch?: T;
   updatedAt?: T;
@@ -621,32 +595,17 @@ export interface VendorsSelect<T extends boolean = true> {
  */
 export interface PurchaseOrdersSelect<T extends boolean = true> {
   poNumber?: T;
-  vendor?: T;
-  vendorInvoiceNumber?: T;
-  orderDate?: T;
-  challanNo?: T;
-  challanDate?: T;
-  ewayBillNo?: T;
-  products?:
+  date?: T;
+  items?:
     | T
     | {
         product?: T;
-        hsnSac?: T;
-        uom?: T;
         quantity?: T;
         unitPrice?: T;
-        discount?: T;
-        totalPrice?: T;
-        note?: T;
         id?: T;
       };
-  subtotal?: T;
-  taxPercent?: T;
-  taxAmount?: T;
-  totalAmount?: T;
-  paymentType?: T;
-  paymentStatus?: T;
-  remarks?: T;
+  brand?: T;
+  branch?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -675,7 +634,6 @@ export interface InventorySelect<T extends boolean = true> {
   brand?: T;
   branch?: T;
   currentStock?: T;
-  lastUpdated?: T;
   updatedAt?: T;
   createdAt?: T;
 }

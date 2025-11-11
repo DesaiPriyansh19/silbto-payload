@@ -15,10 +15,10 @@ import { Clients } from './collections/Clients'
 import { FamilyGroups } from './collections/FamilyGroups'
 import ProductMaster from './collections/ProductMaster'
 import { Vendors } from './collections/Vendors'
-import Products from './collections/Product'
+import { Products } from './collections/Product'
 
 import { Inventory } from './collections/Inventory'
-import PurchaseOrders from './collections/PurchaseOrders'
+import { PurchaseOrders } from './collections/PurchaseOrders'
 import SalesOrders from './collections/SalesOrders'
 
 const filename = fileURLToPath(import.meta.url)
