@@ -1,6 +1,7 @@
 import type { CollectionConfig, PayloadRequest } from 'payload'
+import payload from 'payload'
 
-export const PurchaseOrders: CollectionConfig = {
+const PurchaseOrders: CollectionConfig = {
   slug: 'purchase-orders',
   labels: {
     singular: 'Purchase Order',
@@ -46,26 +47,22 @@ export const PurchaseOrders: CollectionConfig = {
     { name: 'paymentType', type: 'text' },
     { name: 'paymentStatus', type: 'select', options: ['Paid', 'Pending'] },
     { name: 'remarks', type: 'textarea' },
-
-    // ✅ Brand (admin can select, user auto)
     {
       name: 'brand',
       type: 'relationship',
       relationTo: 'brands',
       required: true,
       admin: {
-        condition: () => true,
+        readOnly: true, // always auto-assigned
       },
     },
-
-    // ✅ Branch (admin can select, user auto)
     {
       name: 'branch',
       type: 'relationship',
       relationTo: 'branches',
       required: true,
       admin: {
-        condition: () => true,
+        readOnly: false, // admin can select manually
       },
     },
   ],
@@ -80,24 +77,57 @@ export const PurchaseOrders: CollectionConfig = {
           role?: string
         }
 
-        // ✅ Automatically attach brand
+        // Auto-attach brand
         if (user?.brand) {
           data.brand = typeof user.brand === 'object' ? user.brand.id : user.brand
         }
 
-        // ✅ Automatically attach first branch if user is not admin
+        // Auto-attach first branch for non-admin users
         if (user?.role !== 'admin' && Array.isArray(user.branches) && user.branches.length > 0) {
           const firstBranch = user.branches[0]
           data.branch = typeof firstBranch === 'object' ? firstBranch.id : firstBranch
         }
 
-        // ✅ If admin manually selects branch (optional)
+        // Admin can manually select branch, warn if missing
         if (user?.role === 'admin' && !data.branch) {
-          console.log('⚠️ Admin must select branch manually')
+          console.warn('⚠️ Admin must select branch manually')
         }
 
         return data
       },
     ],
+
+    afterChange: [
+      async ({ doc, req }) => {
+        if (!doc?.items) return
+
+        // Update inventory quantities
+        for (const item of doc.items) {
+          if (!item.product || !item.quantity) continue
+
+          try {
+            const productDoc = await payload.findByID({
+              collection: 'products',
+              id: item.product,
+              req,
+            })
+
+            const currentQty = Number(productDoc?.quantity || 0)
+            const addedQty = Number(item.quantity || 0)
+
+            await payload.update({
+              collection: 'products',
+              id: item.product,
+              data: { quantity: currentQty + addedQty },
+              req,
+            })
+          } catch (err) {
+            console.error(`Failed to update product ${item.product} quantity:`, err)
+          }
+        }
+      },
+    ],
   },
 }
+
+export default PurchaseOrders
