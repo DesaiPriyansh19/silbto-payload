@@ -72,28 +72,28 @@ export const PurchaseOrders: CollectionConfig = {
 
   hooks: {
     beforeChange: [
-      async ({ req, data }: { req: PayloadRequest; data: any }) => {
+      async ({ req, data }) => {
         const user = req.user as {
           id: string
-          role?: string
           brand?: string | { id: string }
           branches?: (string | { id: string })[]
+          role?: string
         }
 
-        // 🧠 Only auto-assign if NOT admin
-        if (user?.role !== 'admin') {
-          // Auto-attach brand
-          if (user?.brand) {
-            if (typeof user.brand === 'object' && user.brand.id) data.brand = user.brand.id
-            else if (typeof user.brand === 'string') data.brand = user.brand
-          }
+        // ✅ Automatically attach brand
+        if (user?.brand) {
+          data.brand = typeof user.brand === 'object' ? user.brand.id : user.brand
+        }
 
-          // Auto-attach first branch
-          if (user?.branches?.length) {
-            const first = user.branches[0]
-            if (typeof first === 'object' && first.id) data.branch = first.id
-            else if (typeof first === 'string') data.branch = first
-          }
+        // ✅ Automatically attach first branch if user is not admin
+        if (user?.role !== 'admin' && Array.isArray(user.branches) && user.branches.length > 0) {
+          const firstBranch = user.branches[0]
+          data.branch = typeof firstBranch === 'object' ? firstBranch.id : firstBranch
+        }
+
+        // ✅ If admin manually selects branch (optional)
+        if (user?.role === 'admin' && !data.branch) {
+          console.log('⚠️ Admin must select branch manually')
         }
 
         return data
